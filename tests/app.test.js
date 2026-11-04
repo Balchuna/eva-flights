@@ -2,10 +2,14 @@ import { useTempData, blockedRequests } from './helpers/setup.js'
 import { test, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { searchFlights as realFastFlights } from '../server/providers/fastflights.js'
+import { write } from '../server/store.js'
+import { LIMITS } from '../server/usage.js'
 import { fakeProviders, startTestServer, offer, SEARCH_QS } from './helpers/server.js'
 
 let temp
 let running
+
+const useCalls = (calls) => write('usage', { month: new Date().toISOString().slice(0, 7), calls })
 
 async function get(providers, path) {
   running = await startTestServer(providers)
@@ -131,6 +135,62 @@ test('sem oferta de cache a verificação automática não gasta SerpAPI', async
   assert.equal(calls, 0)
   assert.equal(body.verified, null)
   assert.equal(body.data.length, 1)
+})
+
+function skyCounting(calls) {
+  return {
+    enabled: () => true,
+    searchFlights: async () => {
+      calls.count++
+      return []
+    },
+  }
+}
+
+test('Sky-Scrapper: sem quota para as 3 chamadas da busca vira aviso e a fonte não é chamada', async () => {
+  useCalls({ skyscrapper: LIMITS.skyscrapper - 2 })
+  const calls = { count: 0 }
+  const { status, body } = await get(
+    fakeProviders({ ...withCacheOffer, skyscrapper: skyCounting(calls) }),
+    `/api/flights?${SEARCH_QS}&useSkyscrapper=true`
+  )
+  assert.equal(status, 200)
+  assert.equal(calls.count, 0)
+  assert.deepEqual(body.warnings, [`Sky-Scrapper: quota mensal esgotada (${LIMITS.skyscrapper})`])
+})
+
+test('Sky-Scrapper: com quota para as 3 chamadas a busca acontece', async () => {
+  useCalls({ skyscrapper: LIMITS.skyscrapper - 3 })
+  const calls = { count: 0 }
+  const { body } = await get(
+    fakeProviders({ ...withCacheOffer, skyscrapper: skyCounting(calls) }),
+    `/api/flights?${SEARCH_QS}&useSkyscrapper=true`
+  )
+  assert.equal(calls.count, 1)
+  assert.deepEqual(body.warnings, [])
+})
+
+test('/api/verify no limite responde 429 e a fonte não é chamada', async () => {
+  useCalls({ serpapi: LIMITS.serpapi })
+  let calls = 0
+  running = await startTestServer(
+    fakeProviders({
+      serpapi: {
+        enabled: () => true,
+        verifyPrice: async () => {
+          calls++
+          return { cheapest: 500 }
+        },
+      },
+    })
+  )
+  const res = await fetch(`${running.url}/api/verify`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ origin: 'GRU', destination: 'GIG', departureDate: '2026-12-10' }),
+  })
+  assert.equal(res.status, 429)
+  assert.equal(calls, 0)
 })
 
 test('busca sem parâmetro obrigatório responde 400', async () => {
