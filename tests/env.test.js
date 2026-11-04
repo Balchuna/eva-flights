@@ -47,6 +47,12 @@ test('só server/index.js carrega o .env', () => {
   assert.deepEqual(loaders, ['server/index.js'])
 })
 
+test('start.bat sem .env abre em modo demo em vez de abortar', () => {
+  const bat = readFileSync(path.join(ROOT, 'start.bat'), 'utf8')
+  assert.match(bat, /set "DEMO_MODE=true"/)
+  assert.doesNotMatch(bat, /exit \/b 1/)
+})
+
 test('fast-flights fica desligado sem configuração', () => {
   assert.equal(fastFlightsEnabled(), false)
 })

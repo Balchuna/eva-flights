@@ -3,10 +3,9 @@ title Eva Flights
 cd /d "%~dp0"
 
 if not exist .env (
-    echo [ERRO] Arquivo .env nao encontrado.
-    echo Copie .env.example para .env e preencha TRAVELPAYOUTS_TOKEN.
-    pause
-    exit /b 1
+    echo Arquivo .env nao encontrado: abrindo em modo demo, com precos ficticios.
+    echo Para usar dados reais, copie .env.example para .env e preencha as chaves.
+    set "DEMO_MODE=true"
 )
 
 if not exist node_modules (
