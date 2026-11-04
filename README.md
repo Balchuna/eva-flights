@@ -18,7 +18,19 @@ Requer Node 20+.
 
 ## Rodar
 
-Duplo clique em `start.bat`, ou `npm run dev`. Server :3001, app :5173.
+Duplo clique em `start.bat`, ou `npm run dev`. Server em `127.0.0.1:3001` (só nesta máquina), app em `localhost:5173`. Sem `.env`, o `start.bat` entra no modo demo.
+
+`npm test` roda os testes, sem rede e sem chave.
+
+## Modo demo
+
+Para ver o app sem nenhuma chave: `npm run demo`, ou `DEMO_MODE=true` no `.env` e `npm run dev`. Preços e agências são fictícios, as fontes não chamam nenhuma API e os dados ficam em `data/demo`. Os links para o Google Flights e para as companhias continuam abrindo os sites reais.
+
+## Google Flights ao vivo (fast-flights): desligado por padrão
+
+`fast-flights-ts` consulta o Google Flights sem chave, por um scraper não oficial. Por isso vem desligado (`FASTFLIGHTS_DISABLED=true` no `.env.example`): pode quebrar quando o Google mudar o protocolo, pode ser bloqueado e pode contrariar os termos de uso do Google. Em 04/11/2026, numa consulta de ida e volta GRU→GIG, falhou com `RPC response missing flight data`.
+
+Para ligar, use `FASTFLIGHTS_DISABLED=false` no `.env`, por sua conta e risco. Quem já tinha um `.env` sem essa linha fica com a fonte desligada até acrescentá-la. Se a fonte falhar ou demorar, a busca continua com as outras e mostra um aviso.
 
 ## Como os preços funcionam
 
@@ -30,4 +42,4 @@ Duplo clique em `start.bat`, ou `npm run dev`. Server :3001, app :5173.
 
 - Alertas: checagem a cada `ALERT_CHECK_HOURS` + vigília nos `WATCH_HOURS`, enquanto o server roda; toast do Windows ao atingir o alvo.
 - Uso mensal por fonte em `data/usage.json`, exibido no topo da UI.
-- Dados locais em `app/data/*.json` (gitignored).
+- Dados locais em `data/*.json` (gitignored).
