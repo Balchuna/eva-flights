@@ -42,6 +42,13 @@ test('confiança: oferta viva aparece como viva', () => {
   assert.equal(result.ageHours, 0)
 })
 
+test('confiança: oferta viva deixa de ser viva depois de 10 minutos', () => {
+  const minutesAgo = (m) => new Date(NOW.getTime() - m * 60_000).toISOString()
+  assert.equal(withConfidence(offer({ live: true, foundAt: minutesAgo(9) }), NOW).confidence, 'live')
+  assert.equal(withConfidence(offer({ live: true, foundAt: minutesAgo(11) }), NOW).confidence, 'fresh')
+  assert.equal(withConfidence(offer({ live: true, foundAt: hoursAgo(3) }), NOW).ageHours, 3)
+})
+
 test('confiança: cache por idade', () => {
   assert.equal(withConfidence(offer({ foundAt: hoursAgo(2) }), NOW).confidence, 'fresh')
   assert.equal(withConfidence(offer({ foundAt: hoursAgo(30) }), NOW).confidence, 'cache')

@@ -6,7 +6,7 @@ const SOURCE_LABELS = {
   travelpayouts: 'Aviasales · cache',
   skyscrapper: 'Skyscanner',
   google: 'Google Flights',
-  'google-live': 'Google Flights · vivo',
+  'google-live': 'Google Flights',
 }
 
 function fmtDateTime(iso) {
@@ -37,8 +37,8 @@ function fmtBRL(v) {
 }
 
 const CONFIDENCE = {
-  live: { label: 'Vivo', title: 'Resultado de busca real, agora' },
-  fresh: { label: 'Cache recente', title: 'Visto no cache Aviasales há menos de 24h' },
+  live: { label: 'Vivo', title: 'Resultado de busca real, feita há menos de 10 minutos' },
+  fresh: { label: 'Recente', title: 'Visto há menos de 24h' },
   cache: { label: 'Cache', title: 'Preço de cache — pode ter mudado' },
   stale: { label: 'Antigo', title: 'Visto há mais de 72h — confirme antes de confiar' },
 }
