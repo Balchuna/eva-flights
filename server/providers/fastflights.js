@@ -35,6 +35,7 @@ export function normalizeFlights(results, { origin, destination, returnDate }, n
         destination,
         price: it.price,
         airline: canonicalAirline(it.airlines?.[0] || it.type),
+        gate: null,
         flightNumber: null,
         departureAt: isoOf(first?.departure),
         returnAt: returnDate || null,

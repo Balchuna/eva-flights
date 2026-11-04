@@ -82,6 +82,12 @@ test('Travelpayouts latest: usa value como preço e descarta outra data de ida',
   assert.equal(offers[0].buyUrl, null)
 })
 
+test('Travelpayouts latest: agência fica em gate, nunca em companhia', () => {
+  const [offer] = normalizeLatest([travelpayoutsLatestRow], SEARCH)
+  assert.equal(offer.airline, null)
+  assert.equal(offer.gate, 'Agência Fictícia')
+})
+
 test('Travelpayouts latest: em ida e volta descarta outra data de volta', () => {
   const offers = normalizeLatest(
     [

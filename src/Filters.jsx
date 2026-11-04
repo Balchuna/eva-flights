@@ -1,4 +1,5 @@
 import { HOUR_BANDS, SORTS } from './filtering.js'
+import { carrierName } from './offerLabels.js'
 
 export default function Filters({ offers, filters, onChange }) {
   const airlines = [...new Set(offers.map((o) => o.airline).filter(Boolean))].sort()
@@ -56,7 +57,7 @@ export default function Filters({ offers, filters, onChange }) {
               className={filters.airlines.includes(a) ? 'chip on' : 'chip'}
               onClick={() => toggleAirline(a)}
             >
-              {a}
+              {carrierName(a)}
             </button>
           ))}
         </div>

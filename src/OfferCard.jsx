@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from './api.js'
 import { googleFlightsUrl, airlineSite } from './buyLinks.js'
+import { offerMeta, stopsLabel } from './offerLabels.js'
 
 const SOURCE_LABELS = {
   travelpayouts: 'Aviasales · cache',
@@ -11,17 +12,6 @@ const SOURCE_LABELS = {
 
 function fmtDateTime(iso) {
   return iso ? iso.slice(0, 16).replace('T', ' ') : ''
-}
-
-function fmtDuration(min) {
-  if (min == null) return null
-  const h = Math.floor(min / 60)
-  return `${h}h ${min % 60}min`
-}
-
-function stopsLabel(n) {
-  if (n == null) return null
-  return n === 0 ? 'direto' : `${n} escala${n > 1 ? 's' : ''}`
 }
 
 function priceAge(foundAt) {
@@ -96,16 +86,7 @@ export default function OfferCard({ offer, onFavorite, canVerify, verifyRemainin
             {offer.origin} <span className="arrow">→</span> {offer.destination}
             <span className="when">{fmtDateTime(offer.departureAt)}</span>
           </span>
-          <span className="meta">
-            {[
-              airline ? airline.name : offer.airline,
-              offer.flightNumber ? `voo ${offer.airline}${offer.flightNumber}` : null,
-              stopsLabel(offer.transfers),
-              fmtDuration(offer.durationMinutes),
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </span>
+          <span className="meta">{offerMeta(offer)}</span>
         </div>
         {offer.returnAt && (
           <div className="itinerary">

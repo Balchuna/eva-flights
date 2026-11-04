@@ -56,6 +56,13 @@ test('dedupe: sem companhia ou sem partida nada é fundido', () => {
   assert.equal(mergeOffers([offer({ departureAt: null }), offer({ departureAt: null })]).length, 2)
 })
 
+test('dedupe: mesma agência e datas ficam com o menor preço; outra agência continua separada', () => {
+  const viaAgency = (gate, price) =>
+    offer({ airline: null, gate, price, flightNumber: null, departureAt: '2026-12-10', returnAt: '2026-12-20' })
+  const merged = mergeOffers([viaAgency('Alfa', 500), viaAgency('Alfa', 400), viaAgency('Beta', 450)])
+  assert.deepEqual(merged.map((o) => [o.gate, o.price]), [['Alfa', 400], ['Beta', 450]])
+})
+
 test('dedupe: resultado sai ordenado por preço', () => {
   const merged = mergeOffers([
     offer({ flightNumber: '1', price: 900 }),

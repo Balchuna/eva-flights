@@ -45,6 +45,7 @@ export function normalizeItineraries(itineraries, { origin, destination }, now =
       destination,
       price: it.price?.raw ?? null,
       airline: canonicalAirline(leg?.carriers?.marketing?.[0]?.name),
+      gate: null,
       flightNumber: null,
       departureAt: leg?.departure || null,
       returnAt: it.legs?.[1]?.departure || null,

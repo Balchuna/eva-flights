@@ -6,10 +6,14 @@ function returnDay(offer) {
   return (offer.returnAt || '').slice(0, 10)
 }
 
+function seller(offer) {
+  return offer.airline || (offer.gate ? `agência:${offer.gate}` : null)
+}
+
 // Companhia e partida iguais, e o número do voo quando as duas fontes dão. Sem número
 // (fast-flights e Sky-Scrapper não dão), a data da volta separa viagens diferentes.
 function sameFlight(a, b) {
-  if (!a.airline || a.airline !== b.airline) return false
+  if (!seller(a) || seller(a) !== seller(b)) return false
   if (!departureMinute(a) || departureMinute(a) !== departureMinute(b)) return false
   if (a.flightNumber && b.flightNumber) return String(a.flightNumber) === String(b.flightNumber)
   return returnDay(a) === returnDay(b)
