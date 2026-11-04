@@ -1,4 +1,7 @@
 node_modules/
 dist/
-.env
 data/
+.env
+.env.*
+!.env.example
+.claude/
