@@ -2,7 +2,8 @@
 // Best-effort: pode quebrar quando o Google mudar o protocolo — nunca fonte única.
 import { getFlights, createQuery, Passengers } from 'fast-flights-ts'
 
-export const enabled = () => process.env.FASTFLIGHTS_DISABLED !== 'true'
+// Desligado por padrão: quem clona o projeto não chama o Google sem decidir isso
+export const enabled = () => process.env.FASTFLIGHTS_DISABLED === 'false'
 
 const TIMEOUT_MS = 12_000
 

@@ -20,6 +20,10 @@ const SOURCE_NAMES = {
   fastflights: 'Google (vivo)',
 }
 
+const OFF_REASON = {
+  fastflights: 'desligado por padrão; FASTFLIGHTS_DISABLED=false no .env liga',
+}
+
 export default function App() {
   const [tab, setTab] = useState('search')
   const [status, setStatus] = useState(null)
@@ -59,7 +63,7 @@ export default function App() {
         </div>
         <div className="source-pills">
           {Object.entries(SOURCE_NAMES).map(([key, name]) => (
-            <span key={key} className={sources[key] ? 'pill on' : 'pill off'} title={sources[key] ? `${usage[key] || 0} chamadas este mês` : 'sem key no .env'}>
+            <span key={key} className={sources[key] ? 'pill on' : 'pill off'} title={sources[key] ? `${usage[key] || 0} chamadas este mês` : OFF_REASON[key] || 'sem key no .env'}>
               {name}
               {sources[key] && usage[key] ? ` · ${usage[key]}` : ''}
             </span>
