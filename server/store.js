@@ -2,10 +2,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const DATA_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data')
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+// Resolvido a cada acesso: testes usam pasta temporária e o demo não toca nos dados reais
+function dataDir() {
+  if (process.env.EVA_DATA_DIR) return process.env.EVA_DATA_DIR
+  return process.env.DEMO_MODE === 'true' ? path.join(ROOT, 'data', 'demo') : path.join(ROOT, 'data')
+}
 
 function fileFor(name) {
-  return path.join(DATA_DIR, `${name}.json`)
+  return path.join(dataDir(), `${name}.json`)
 }
 
 export function read(name, fallback) {
@@ -17,6 +23,6 @@ export function read(name, fallback) {
 }
 
 export function write(name, value) {
-  fs.mkdirSync(DATA_DIR, { recursive: true })
+  fs.mkdirSync(dataDir(), { recursive: true })
   fs.writeFileSync(fileFor(name), JSON.stringify(value, null, 2))
 }
