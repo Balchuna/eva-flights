@@ -89,7 +89,7 @@ test('demo: o mesmo voo em duas fontes aparece uma vez, pelo menor preço', asyn
 test('demo: mostra ofertas de idades diferentes', async () => {
   const { body } = await api(`/api/flights?${QS}&useSkyscrapper=true`)
   const levels = new Set(body.data.map((o) => o.confidence))
-  for (const level of ['live', 'fresh', 'cache', 'stale']) assert.ok(levels.has(level), level)
+  for (const level of ['live', 'fresh', 'cache', 'unknown', 'stale']) assert.ok(levels.has(level), level)
 })
 
 test('demo: a mesma busca dá os mesmos preços; outra rota dá outros', async () => {

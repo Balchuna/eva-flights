@@ -1,8 +1,15 @@
 import './helpers/setup.js'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { carrierName, offerMeta } from '../src/offerLabels.js'
+import { CONFIDENCE, carrierName, offerMeta } from '../src/offerLabels.js'
 import { offer } from './helpers/server.js'
+
+test('todo nível de confiança tem rótulo e explicação', () => {
+  for (const level of ['live', 'fresh', 'cache', 'unknown', 'stale']) {
+    assert.ok(CONFIDENCE[level]?.label, level)
+    assert.ok(CONFIDENCE[level]?.title, level)
+  }
+})
 
 test('resumo: companhia pelo nome, voo, escalas e duração', () => {
   assert.equal(offerMeta(offer({ durationMinutes: 65 })), 'GOL · voo G39101 · direto · 1h 5min')

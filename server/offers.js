@@ -32,7 +32,7 @@ const LIVE_HOURS = 10 / 60
 // Calculada na resposta, não na busca: a oferta pode ficar até 3h no cache em memória,
 // então "viva" só vale nos primeiros minutos
 export function withConfidence(offer, now = new Date()) {
-  if (!offer.foundAt) return { ...offer, ageHours: null, confidence: 'stale' }
+  if (!offer.foundAt) return { ...offer, ageHours: null, confidence: 'unknown' }
   const ageHours = Math.max(0, (now - new Date(offer.foundAt)) / 3600_000)
   if (offer.live && ageHours < LIVE_HOURS) return { ...offer, ageHours: 0, confidence: 'live' }
   return {

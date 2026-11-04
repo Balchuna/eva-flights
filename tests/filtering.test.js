@@ -22,6 +22,13 @@ test('faixa de partida: partida sem hora não entra em nenhuma faixa', () => {
   assert.equal(applyFilters(offers, EMPTY_FILTERS).length, 2)
 })
 
+test('ordenar por confiança: idade desconhecida fica depois do cache e antes do antigo', () => {
+  const levels = [['stale', 100], ['unknown', 200], ['cache', 300], ['fresh', 400], ['live', 500]]
+  const offers = levels.map(([confidence, price]) => offer({ confidence, price }))
+  const sorted = applyFilters(offers, { ...EMPTY_FILTERS, sort: 'confidence' })
+  assert.deepEqual(sorted.map((o) => o.confidence), ['live', 'fresh', 'cache', 'unknown', 'stale'])
+})
+
 test('companhia: mostra só as escolhidas', () => {
   const offers = [offer({ airline: 'G3' }), offer({ airline: 'AD' }), offer({ airline: null })]
   const chosen = applyFilters(offers, { ...EMPTY_FILTERS, airlines: ['AD'] })

@@ -92,6 +92,12 @@ test('confiança: cache por idade', () => {
   assert.equal(withConfidence(offer({ foundAt: hoursAgo(100) }), NOW).ageHours, 100)
 })
 
+test('confiança: sem data da fonte a idade é desconhecida, não antiga', () => {
+  const result = withConfidence(offer({ foundAt: null }), NOW)
+  assert.equal(result.confidence, 'unknown')
+  assert.equal(result.ageHours, null)
+})
+
 test('verificação: calcula delta contra o menor preço', () => {
   const verification = buildVerification([offer({ price: 400 })], { cheapest: 500, googleUrl: 'https://g.test' }, NOW)
   assert.deepEqual(verification, {

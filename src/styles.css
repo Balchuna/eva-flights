@@ -715,6 +715,11 @@ footer {
   border-color: var(--accent);
 }
 
+.badge.conf-unknown {
+  color: var(--text-dim);
+  border-color: var(--line-strong);
+}
+
 .badge.conf-stale {
   color: #c0392b;
   border-color: #c0392b;

@@ -17,8 +17,8 @@ export const SORTS = {
   confidence: {
     label: 'Confiança',
     fn: (a, b) => {
-      const rank = { live: 0, fresh: 1, cache: 2, stale: 3 }
-      return (rank[a.confidence] ?? 3) - (rank[b.confidence] ?? 3) || a.price - b.price
+      const rank = { live: 0, fresh: 1, cache: 2, unknown: 3, stale: 4 }
+      return (rank[a.confidence] ?? 4) - (rank[b.confidence] ?? 4) || a.price - b.price
     },
   },
 }

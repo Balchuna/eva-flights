@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from './api.js'
 import { googleFlightsUrl, airlineSite } from './buyLinks.js'
-import { offerMeta, stopsLabel } from './offerLabels.js'
+import { CONFIDENCE, offerMeta, stopsLabel } from './offerLabels.js'
 
 const SOURCE_LABELS = {
   travelpayouts: 'Aviasales · cache',
@@ -24,13 +24,6 @@ function priceAge(foundAt) {
 
 function fmtBRL(v) {
   return v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-}
-
-const CONFIDENCE = {
-  live: { label: 'Vivo', title: 'Resultado de busca real, feita há menos de 10 minutos' },
-  fresh: { label: 'Recente', title: 'Visto há menos de 24h' },
-  cache: { label: 'Cache', title: 'Preço de cache — pode ter mudado' },
-  stale: { label: 'Antigo', title: 'Visto há mais de 72h — confirme antes de confiar' },
 }
 
 export default function OfferCard({ offer, onFavorite, canVerify, verifyRemaining, routeVerified }) {

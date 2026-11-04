@@ -1,5 +1,13 @@
 import { airlineSite } from './buyLinks.js'
 
+export const CONFIDENCE = {
+  live: { label: 'Vivo', title: 'Resultado de busca real, feita há menos de 10 minutos' },
+  fresh: { label: 'Recente', title: 'Visto há menos de 24h' },
+  cache: { label: 'Cache', title: 'Preço de cache — pode ter mudado' },
+  unknown: { label: 'Idade desconhecida', title: 'A fonte não informou quando viu este preço — confirme antes de confiar' },
+  stale: { label: 'Antigo', title: 'Visto há mais de 72h — confirme antes de confiar' },
+}
+
 export function carrierName(carrier) {
   return airlineSite(carrier)?.name || carrier
 }
