@@ -249,6 +249,7 @@ export function createApp({ providers = getProviders() } = {}) {
   return app
 }
 
+// Só a própria máquina: a API não tem login e gasta as quotas das chaves do .env
 export function startServer(app, port, onListening) {
-  return app.listen(port, onListening)
+  return app.listen(port, '127.0.0.1', onListening)
 }

@@ -8,7 +8,7 @@ startServer(createApp(), port, () => {
   const active = Object.entries(activeSources())
     .filter(([, on]) => on)
     .map(([k]) => k)
-  console.log(`Eva Flights server em http://localhost:${port} (fontes ativas: ${active.join(', ') || 'nenhuma — configure o .env'})`)
+  console.log(`Eva Flights server em http://127.0.0.1:${port} (fontes ativas: ${active.join(', ') || 'nenhuma — configure o .env'})`)
   if (isDemo()) console.log('Modo demo: preços fictícios, nenhuma chamada externa, dados em data/demo')
   startAlertLoop()
 })
