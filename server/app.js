@@ -95,7 +95,8 @@ export function createApp({ providers = getProviders() } = {}) {
         const settled = await Promise.all(jobs)
         const errors = settled.filter((s) => s.error).map((s) => s.error)
         const merged = mergeOffers(settled.filter((s) => Array.isArray(s)).flat())
-        if (!merged.length && errors.length) {
+        // Só é falha da busca quando nenhuma fonte respondeu; lista vazia com aviso é resposta válida
+        if (errors.length === settled.length) {
           const err = new Error(errors.join(' | '))
           err.status = 502
           throw err

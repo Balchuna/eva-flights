@@ -74,6 +74,37 @@ test('fast-flights: resposta rápida não deixa timer pendente', async () => {
   assert.equal(timers(), before)
 })
 
+const failing = (message) => async () => {
+  throw new Error(message)
+}
+
+test('fast-flights com erro e cache vazio responde 200 com aviso e datas vizinhas', async () => {
+  const nearby = [{ departureDate: '2026-12-11', returnDate: null, price: 300, transfers: 0 }]
+  const { status, body } = await get(
+    fakeProviders({
+      travelpayouts: { nearbyDates: async () => nearby },
+      fastflights: { enabled: () => true, searchFlights: failing('quebrou') },
+    }),
+    `/api/flights?${SEARCH_QS}`
+  )
+  assert.equal(status, 200)
+  assert.deepEqual(body.data, [])
+  assert.deepEqual(body.warnings, ['Google (vivo): quebrou'])
+  assert.deepEqual(body.nearby, nearby)
+})
+
+test('todas as fontes com erro respondem 502 com as mensagens', async () => {
+  const { status, body } = await get(
+    fakeProviders({
+      travelpayouts: { searchFlights: failing('sem token'), latestPrices: failing('sem token') },
+      fastflights: { enabled: () => true, searchFlights: failing('quebrou') },
+    }),
+    `/api/flights?${SEARCH_QS}`
+  )
+  assert.equal(status, 502)
+  assert.equal(body.error, 'Travelpayouts: sem token | Travelpayouts latest: sem token | Google (vivo): quebrou')
+})
+
 test('resposta traz a confiança de cada oferta', async () => {
   const { body } = await get(fakeProviders(withCacheOffer), `/api/flights?${SEARCH_QS}`)
   assert.equal(body.data[0].confidence, 'fresh')
