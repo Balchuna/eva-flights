@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { trackCall } from '../usage.js'
 
 const BASE = 'https://api.travelpayouts.com'
@@ -47,7 +46,10 @@ export async function searchLocations(keyword) {
     err.status = 502
     throw err
   }
-  const places = await res.json()
+  return normalizePlaces(await res.json())
+}
+
+export function normalizePlaces(places) {
   return places.slice(0, 8).map((p) => ({
     code: p.code,
     name: p.name,
@@ -64,17 +66,11 @@ function buildBuyUrl(link) {
   return marker ? `${url}${link.includes('?') ? '&' : '?'}marker=${marker}` : url
 }
 
-function confidenceOf(foundAt) {
-  if (!foundAt) return { ageHours: null, confidence: 'stale' }
-  const ageHours = Math.max(0, (Date.now() - new Date(foundAt)) / 3600_000)
-  return { ageHours: Math.round(ageHours), confidence: ageHours < 24 ? 'fresh' : ageHours > 72 ? 'stale' : 'cache' }
-}
-
-function normalizeOffer(t) {
+export function normalizeOffer(t) {
   return {
     source: 'travelpayouts',
+    live: false,
     foundAt: t.found_at || null,
-    ...confidenceOf(t.found_at),
     origin: t.origin,
     destination: t.destination,
     price: Number(t.price),
@@ -125,7 +121,11 @@ export async function latestPrices({ origin, destination, departureDate, returnD
     limit: 100,
     show_to_affiliates: 'false',
   })
-  return (body.data || [])
+  return normalizeLatest(body.data || [], { departureDate, returnDate })
+}
+
+export function normalizeLatest(rows, { departureDate }) {
+  return rows
     .filter((t) => (t.depart_date || '').startsWith(departureDate))
     .map((t) =>
       normalizeOffer({
@@ -148,6 +148,10 @@ export async function latestPrices({ origin, destination, departureDate, returnD
 export async function nearbyDates({ origin, destination, departureDate, days = 3 }) {
   const month = departureDate.slice(0, 7)
   const matrix = await monthMatrix({ origin, destination, month })
+  return pickNearby(matrix, departureDate, days)
+}
+
+export function pickNearby(matrix, departureDate, days = 3) {
   const target = new Date(departureDate + 'T00:00:00')
   return matrix
     .filter((d) => {
@@ -166,7 +170,11 @@ export async function monthMatrix({ origin, destination, month }) {
     currency: 'brl',
     show_to_affiliates: 'false',
   })
-  return (body.data || [])
+  return normalizeMonthMatrix(body.data || [])
+}
+
+export function normalizeMonthMatrix(rows) {
+  return rows
     .map((d) => ({
       departureDate: d.depart_date,
       returnDate: d.return_date || null,

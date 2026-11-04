@@ -1,5 +1,5 @@
 import notifier from 'node-notifier'
-import { searchFlights } from './providers/travelpayouts.js'
+import { getProviders } from './providers/index.js'
 import { read, write } from './store.js'
 
 export function listAlerts() {
@@ -11,7 +11,7 @@ export function saveAlerts(alerts) {
 }
 
 export async function checkAlert(alert) {
-  const offers = await searchFlights({
+  const offers = await getProviders().travelpayouts.searchFlights({
     origin: alert.origin,
     destination: alert.destination,
     departureDate: alert.departureDate,

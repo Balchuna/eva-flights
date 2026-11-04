@@ -3,13 +3,17 @@ import * as serpapi from './serpapi.js'
 import * as skyscrapper from './skyscrapper.js'
 import * as fastflights from './fastflights.js'
 
-export { travelpayouts, serpapi, skyscrapper, fastflights }
+const real = { travelpayouts, serpapi, skyscrapper, fastflights }
 
-export function activeSources() {
+export function getProviders() {
+  return real
+}
+
+export function activeSources(providers = getProviders()) {
   return {
-    travelpayouts: travelpayouts.enabled(),
-    serpapi: serpapi.enabled(),
-    skyscrapper: skyscrapper.enabled(),
-    fastflights: fastflights.enabled(),
+    travelpayouts: providers.travelpayouts.enabled(),
+    serpapi: providers.serpapi.enabled(),
+    skyscrapper: providers.skyscrapper.enabled(),
+    fastflights: providers.fastflights.enabled(),
   }
 }

@@ -17,21 +17,7 @@ function isoOf(dt) {
   return `${y}-${pad(m)}-${pad(d)}T${pad(hh)}:${pad(mm)}`
 }
 
-export async function searchFlights({ origin, destination, departureDate, returnDate }) {
-  const flights = [{ date: departureDate, from_airport: origin, to_airport: destination }]
-  if (returnDate) flights.push({ date: returnDate, from_airport: destination, to_airport: origin })
-  const q = createQuery({
-    flights,
-    trip: returnDate ? 'round-trip' : 'one-way',
-    seat: 'economy',
-    passengers: new Passengers({ adults: 1 }),
-    currency: 'BRL',
-    language: 'pt',
-  })
-  const results = await Promise.race([
-    getFlights(q),
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), TIMEOUT_MS)),
-  ])
+export function normalizeFlights(results, { origin, destination }, now = new Date()) {
   if (!Array.isArray(results)) return []
   return results
     .filter((it) => typeof it.price === 'number' && it.price > 0)
@@ -42,9 +28,7 @@ export async function searchFlights({ origin, destination, departureDate, return
       return {
         source: 'google-live',
         live: true,
-        confidence: 'live',
-        ageHours: 0,
-        foundAt: new Date().toISOString(),
+        foundAt: now.toISOString(),
         origin,
         destination,
         price: it.price,
@@ -58,4 +42,28 @@ export async function searchFlights({ origin, destination, departureDate, return
         buyUrl: null,
       }
     })
+}
+
+export async function searchFlights(
+  { origin, destination, departureDate, returnDate },
+  { search = getFlights, timeoutMs = TIMEOUT_MS } = {}
+) {
+  const flights = [{ date: departureDate, from_airport: origin, to_airport: destination }]
+  if (returnDate) flights.push({ date: returnDate, from_airport: destination, to_airport: origin })
+  const q = createQuery({
+    flights,
+    trip: returnDate ? 'round-trip' : 'one-way',
+    seat: 'economy',
+    passengers: new Passengers({ adults: 1 }),
+    currency: 'BRL',
+    language: 'pt',
+  })
+  let timer
+  const results = await Promise.race([
+    search(q),
+    new Promise((_, rej) => {
+      timer = setTimeout(() => rej(new Error('timeout')), timeoutMs)
+    }),
+  ]).finally(() => clearTimeout(timer))
+  return normalizeFlights(results, { origin, destination, returnDate })
 }

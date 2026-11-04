@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { trackCall } from '../usage.js'
 
 const HOST = 'sky-scrapper.p.rapidapi.com'
@@ -34,6 +33,28 @@ async function resolveAirport(iata) {
   return { skyId: params.skyId, entityId: params.entityId }
 }
 
+export function normalizeItineraries(itineraries, { origin, destination }, now = new Date()) {
+  return itineraries.slice(0, 15).map((it) => {
+    const leg = it.legs?.[0]
+    return {
+      source: 'skyscrapper',
+      live: true,
+      foundAt: now.toISOString(),
+      origin,
+      destination,
+      price: it.price?.raw ?? null,
+      airline: leg?.carriers?.marketing?.[0]?.name || null,
+      flightNumber: null,
+      departureAt: leg?.departure || null,
+      returnAt: it.legs?.[1]?.departure || null,
+      transfers: leg?.stopCount ?? null,
+      returnTransfers: it.legs?.[1]?.stopCount ?? null,
+      durationMinutes: leg?.durationInMinutes ?? null,
+      buyUrl: null,
+    }
+  }).filter((o) => o.price != null)
+}
+
 export async function searchFlights({ origin, destination, departureDate, returnDate }) {
   const [from, to] = await Promise.all([resolveAirport(origin), resolveAirport(destination)])
   if (!from || !to) return []
@@ -50,25 +71,5 @@ export async function searchFlights({ origin, destination, departureDate, return
     adults: 1,
     sortBy: 'price_high',
   })
-  const itineraries = body.data?.itineraries || []
-  return itineraries.slice(0, 15).map((it) => {
-    const leg = it.legs?.[0]
-    return {
-      source: 'skyscrapper',
-      confidence: 'live',
-      ageHours: 0,
-      origin,
-      destination,
-      price: it.price?.raw ?? null,
-      airline: leg?.carriers?.marketing?.[0]?.name || null,
-      flightNumber: null,
-      departureAt: leg?.departure || null,
-      returnAt: it.legs?.[1]?.departure || null,
-      transfers: leg?.stopCount ?? null,
-      returnTransfers: it.legs?.[1]?.stopCount ?? null,
-      durationMinutes: leg?.durationInMinutes ?? null,
-      buyUrl: null,
-      foundAt: null,
-    }
-  }).filter((o) => o.price != null)
+  return normalizeItineraries(body.data?.itineraries || [], { origin, destination })
 }
