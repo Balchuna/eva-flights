@@ -26,33 +26,41 @@ export async function checkAlert(alert) {
   return Math.min(...offers.map((o) => o.price))
 }
 
-export async function checkAllAlerts({ notify = (toast) => notifier.notify(toast) } = {}) {
-  const alerts = listAlerts()
-  for (const alert of alerts) {
+function applyPrice(alert, price, notify) {
+  alert.history = alert.history || []
+  alert.history.push({ date: new Date().toISOString(), price })
+  alert.lastPrice = price
+  alert.lastChecked = new Date().toISOString()
+  if (price <= alert.targetPrice && !alert.notified) {
+    alert.notified = true
+    alert.triggeredAt = new Date().toISOString()
+    notify({
+      title: alertTitle(),
+      message: `${alert.origin} → ${alert.destination} por R$ ${price.toFixed(2)} (alvo R$ ${alert.targetPrice})`,
+    })
+  } else if (price > alert.targetPrice) {
+    alert.notified = false
+  }
+}
+
+export async function checkAllAlerts({ notify = (toast) => notifier.notify(toast), check = checkAlert } = {}) {
+  for (const alert of listAlerts()) {
     if (!alert.active) continue
     try {
-      const price = await checkAlert(alert)
+      const price = await check(alert)
       if (price == null) continue
-      alert.history = alert.history || []
-      alert.history.push({ date: new Date().toISOString(), price })
-      alert.lastPrice = price
-      alert.lastChecked = new Date().toISOString()
-      if (price <= alert.targetPrice && !alert.notified) {
-        alert.notified = true
-        alert.triggeredAt = new Date().toISOString()
-        notify({
-          title: alertTitle(),
-          message: `${alert.origin} → ${alert.destination} por R$ ${price.toFixed(2)} (alvo R$ ${alert.targetPrice})`,
-        })
-      } else if (price > alert.targetPrice) {
-        alert.notified = false
-      }
+      // Relê depois da rede: enquanto a checagem esperava, a API pode ter excluído, pausado,
+      // editado ou criado alertas, e gravar a lista antiga desfaria isso
+      const current = listAlerts()
+      const fresh = current.find((a) => a.id === alert.id)
+      if (!fresh?.active) continue
+      applyPrice(fresh, price, notify)
+      saveAlerts(current)
     } catch (e) {
       console.error(`Alerta ${alert.origin}→${alert.destination}: ${e.message}`)
     }
   }
-  saveAlerts(alerts)
-  return alerts
+  return listAlerts()
 }
 
 // Vigília noturna: além do intervalo padrão, checa em horários fixos (WATCH_HOURS)
