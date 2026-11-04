@@ -2,8 +2,8 @@ import { useTempData, blockedRequests } from './helpers/setup.js'
 import { test, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { searchFlights as realFastFlights } from '../server/providers/fastflights.js'
-import { write } from '../server/store.js'
-import { LIMITS } from '../server/usage.js'
+import { read, write } from '../server/store.js'
+import { getUsage, LIMITS } from '../server/usage.js'
 import { fakeProviders, startTestServer, offer, SEARCH_QS } from './helpers/server.js'
 
 let temp
@@ -135,6 +135,62 @@ test('sem oferta de cache a verificação automática não gasta SerpAPI', async
   assert.equal(calls, 0)
   assert.equal(body.verified, null)
   assert.equal(body.data.length, 1)
+})
+
+async function searchThreeTimes(verifyPrice) {
+  const calls = { count: 0 }
+  running = await startTestServer(
+    fakeProviders({
+      ...withCacheOffer,
+      serpapi: {
+        enabled: () => true,
+        verifyPrice: async () => {
+          calls.count++
+          return verifyPrice()
+        },
+      },
+    })
+  )
+  const bodies = []
+  for (let i = 0; i < 3; i++) {
+    bodies.push(await (await fetch(`${running.url}/api/flights?${SEARCH_QS}`)).json())
+  }
+  return { calls, bodies }
+}
+
+test('auto-verificação com resultado roda 1 vez e repete a resposta nas buscas seguintes', async () => {
+  const { calls, bodies } = await searchThreeTimes(async () => ({ cheapest: 500 }))
+  assert.equal(calls.count, 1)
+  assert.deepEqual(bodies.map((b) => b.verified.livePrice), [500, 500, 500])
+  assert.equal(getUsage().calls['serpapi-auto'], 1)
+})
+
+test('auto-verificação sem voo gasta 1 chamada em 24h, não uma por busca', async () => {
+  const { calls, bodies } = await searchThreeTimes(async () => ({ cheapest: null }))
+  assert.equal(calls.count, 1)
+  assert.deepEqual(bodies.map((b) => b.verified), [null, null, null])
+  assert.equal(getUsage().calls['serpapi-auto'], 1)
+})
+
+test('auto-verificação com erro gasta 1 chamada em 24h e conta no sub-orçamento', async () => {
+  const { calls, bodies } = await searchThreeTimes(failing('SerpAPI fora do ar'))
+  assert.equal(calls.count, 1)
+  assert.deepEqual(bodies.map((b) => b.verified), [null, null, null])
+  assert.equal(getUsage().calls['serpapi-auto'], 1)
+})
+
+test('auto-verificação volta a rodar depois de 24h', async () => {
+  const vKey = 'GRU:GIG:2026-12-10:'
+  write('verifications', { [vKey]: { at: new Date(Date.now() - 25 * 3600_000).toISOString() } })
+  const { calls } = await searchThreeTimes(async () => ({ cheapest: 500 }))
+  assert.equal(calls.count, 1)
+})
+
+test('auto-verificação de outra rota não apaga a verificação salva', async () => {
+  const other = { at: new Date().toISOString(), livePrice: 900 }
+  write('verifications', { 'GRU:SSA:2026-12-10:': other })
+  await searchThreeTimes(async () => ({ cheapest: 500 }))
+  assert.deepEqual(read('verifications', {})['GRU:SSA:2026-12-10:'], other)
 })
 
 function skyCounting(calls) {

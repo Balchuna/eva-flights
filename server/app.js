@@ -17,6 +17,10 @@ function handle(fn) {
   }
 }
 
+function saveVerification(key, value) {
+  write('verifications', { ...read('verifications', {}), [key]: value })
+}
+
 const IATA = /^[A-Za-z]{3}$/
 const DAY = /^\d{4}-\d{2}-\d{2}$/
 
@@ -129,19 +133,17 @@ export function createApp({ providers = getProviders() } = {}) {
       // dentro do orçamento de auto-verificação (metade da quota mensal)
       let verified = null
       const vKey = `${origin}:${destination}:${departureDate}:${returnDate || ''}`
-      const verifications = read('verifications', {})
-      const existing = verifications[vKey]
+      const existing = read('verifications', {})[vKey]
       if (existing && Date.now() - new Date(existing.at) < 24 * 3600_000) {
-        verified = existing
+        verified = existing.livePrice != null ? existing : null
       } else if (cachePriceOf(result.offers) != null && serpapi.enabled() && canAutoVerify()) {
+        // Registrada antes da chamada: vazio e erro também gastam quota e não podem repetir a cada busca
+        saveVerification(vKey, { at: new Date().toISOString() })
+        trackCall('serpapi-auto')
         try {
           const check = await serpapi.verifyPrice({ origin, destination, departureDate, returnDate })
-          trackCall('serpapi-auto')
           verified = buildVerification(result.offers, check)
-          if (verified) {
-            verifications[vKey] = verified
-            write('verifications', verifications)
-          }
+          if (verified) saveVerification(vKey, verified)
         } catch {
           // auto-verificação é best-effort; falha não afeta a busca
         }
