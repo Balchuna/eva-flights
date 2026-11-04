@@ -24,9 +24,14 @@ export function withConfidence(offer, now = new Date()) {
   }
 }
 
+// Comparar o Google com outra fonte viva não diz nada sobre o cache
+export function cachePriceOf(offers) {
+  return offers.find((offer) => offer.source === 'travelpayouts' && offer.price > 0)?.price ?? null
+}
+
 export function buildVerification(offers, check, now = new Date()) {
-  if (check.cheapest == null) return null
-  const cachePrice = offers[0].price
+  const cachePrice = cachePriceOf(offers)
+  if (check.cheapest == null || cachePrice == null) return null
   return {
     at: now.toISOString(),
     cachePrice,

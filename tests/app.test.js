@@ -110,6 +110,29 @@ test('resposta traz a confiança de cada oferta', async () => {
   assert.equal(body.data[0].confidence, 'fresh')
 })
 
+test('sem oferta de cache a verificação automática não gasta SerpAPI', async () => {
+  let calls = 0
+  const { body } = await get(
+    fakeProviders({
+      fastflights: {
+        enabled: () => true,
+        searchFlights: async () => [offer({ source: 'google-live', live: true })],
+      },
+      serpapi: {
+        enabled: () => true,
+        verifyPrice: async () => {
+          calls++
+          return { cheapest: 500 }
+        },
+      },
+    }),
+    `/api/flights?${SEARCH_QS}`
+  )
+  assert.equal(calls, 0)
+  assert.equal(body.verified, null)
+  assert.equal(body.data.length, 1)
+})
+
 test('busca sem parâmetro obrigatório responde 400', async () => {
   const { status } = await get(fakeProviders(), '/api/flights?origin=GRU')
   assert.equal(status, 400)

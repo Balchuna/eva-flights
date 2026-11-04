@@ -3,7 +3,7 @@ import { getProviders, activeSources, isDemo } from './providers/index.js'
 import { getUsage, canCall, canAutoVerify, remaining, trackCall, LIMITS } from './usage.js'
 import { read, write } from './store.js'
 import { listAlerts, saveAlerts, checkAllAlerts } from './alerts.js'
-import { mergeOffers, withConfidence, buildVerification } from './offers.js'
+import { mergeOffers, withConfidence, buildVerification, cachePriceOf } from './offers.js'
 
 const CACHE_TTL = 3 * 3600_000
 
@@ -119,7 +119,7 @@ export function createApp({ providers = getProviders() } = {}) {
       const existing = verifications[vKey]
       if (existing && Date.now() - new Date(existing.at) < 24 * 3600_000) {
         verified = existing
-      } else if (result.offers.length && serpapi.enabled() && canAutoVerify()) {
+      } else if (cachePriceOf(result.offers) != null && serpapi.enabled() && canAutoVerify()) {
         try {
           const check = await serpapi.verifyPrice({ origin, destination, departureDate, returnDate })
           trackCall('serpapi-auto')

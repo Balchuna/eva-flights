@@ -63,3 +63,15 @@ test('verificação: calcula delta contra o menor preço', () => {
 test('verificação: sem preço no Google não gera resultado', () => {
   assert.equal(buildVerification([offer()], { cheapest: null }, NOW), null)
 })
+
+test('verificação: compara com a oferta de cache, mesmo com viva mais barata', () => {
+  const offers = [offer({ price: 300, source: 'google-live', live: true }), offer({ price: 400 })]
+  const verification = buildVerification(offers, { cheapest: 500 }, NOW)
+  assert.equal(verification.cachePrice, 400)
+  assert.equal(verification.delta, 25)
+})
+
+test('verificação: sem oferta de cache com preço não gera resultado', () => {
+  assert.equal(buildVerification([offer({ source: 'google-live' })], { cheapest: 500 }, NOW), null)
+  assert.equal(buildVerification([offer({ price: 0 })], { cheapest: 500 }, NOW), null)
+})
