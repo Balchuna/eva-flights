@@ -193,6 +193,59 @@ test('/api/verify no limite responde 429 e a fonte não é chamada', async () =>
   assert.equal(calls, 0)
 })
 
+const VALID_VERIFY = { origin: 'GRU', destination: 'GIG', departureDate: '2026-12-10' }
+
+async function postVerify(body) {
+  const calls = { count: 0 }
+  running = await startTestServer(
+    fakeProviders({
+      serpapi: {
+        enabled: () => true,
+        verifyPrice: async () => {
+          calls.count++
+          return { cheapest: 500 }
+        },
+      },
+    })
+  )
+  const res = await fetch(`${running.url}/api/verify`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return { status: res.status, calls }
+}
+
+for (const [label, body] of [
+  ['sem parâmetros', {}],
+  ['sem destino', { origin: 'GRU', departureDate: '2026-12-10' }],
+  ['com origem inválida', { ...VALID_VERIFY, origin: 'xx' }],
+  ['com ida inválida', { ...VALID_VERIFY, departureDate: '10/12/2026' }],
+  ['com volta inválida', { ...VALID_VERIFY, returnDate: 'amanhã' }],
+]) {
+  test(`/api/verify ${label} responde 400 e a fonte não é chamada`, async () => {
+    const { status, calls } = await postVerify(body)
+    assert.equal(status, 400)
+    assert.equal(calls.count, 0)
+  })
+}
+
+test('/api/verify inválido responde 400 mesmo com a quota esgotada', async () => {
+  useCalls({ serpapi: LIMITS.serpapi })
+  const { status } = await postVerify({})
+  assert.equal(status, 400)
+})
+
+test('/api/verify aceita só ida e ida e volta', async () => {
+  for (const returnDate of [undefined, null, '2026-12-20']) {
+    const { status, calls } = await postVerify({ ...VALID_VERIFY, returnDate })
+    assert.equal(status, 200)
+    assert.equal(calls.count, 1)
+    await running.close()
+  }
+  running = null
+})
+
 test('busca sem parâmetro obrigatório responde 400', async () => {
   const { status } = await get(fakeProviders(), '/api/flights?origin=GRU')
   assert.equal(status, 400)

@@ -17,6 +17,20 @@ function handle(fn) {
   }
 }
 
+const IATA = /^[A-Za-z]{3}$/
+const DAY = /^\d{4}-\d{2}-\d{2}$/
+
+// Chamada inválida não pode gastar quota da fonte
+function assertRoute({ origin, destination, departureDate, returnDate }) {
+  const valid =
+    IATA.test(origin) && IATA.test(destination) && DAY.test(departureDate) && (!returnDate || DAY.test(returnDate))
+  if (!valid) {
+    const err = new Error('origin e destination (código IATA), departureDate e returnDate (AAAA-MM-DD) inválidos')
+    err.status = 400
+    throw err
+  }
+}
+
 export function createApp({ providers = getProviders() } = {}) {
   const { travelpayouts, serpapi, skyscrapper, fastflights } = providers
   const app = express()
@@ -155,12 +169,13 @@ export function createApp({ providers = getProviders() } = {}) {
   app.post(
     '/api/verify',
     handle((req) => {
+      const { origin, destination, departureDate, returnDate } = req.body
+      assertRoute({ origin, destination, departureDate, returnDate })
       if (!canCall('serpapi')) {
         const err = new Error(`Quota SerpAPI do mês esgotada (${LIMITS.serpapi} buscas). Renova na virada do mês.`)
         err.status = 429
         throw err
       }
-      const { origin, destination, departureDate, returnDate } = req.body
       return serpapi.verifyPrice({ origin, destination, departureDate, returnDate })
     })
   )
