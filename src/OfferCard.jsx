@@ -5,7 +5,7 @@ import { CONFIDENCE, offerMeta, stopsLabel } from './offerLabels.js'
 
 const SOURCE_LABELS = {
   travelpayouts: 'Aviasales · cache',
-  skyscrapper: 'Skyscanner',
+  skyscrapper: 'Sky-Scrapper',
   google: 'Google Flights',
   'google-live': 'Google Flights',
 }

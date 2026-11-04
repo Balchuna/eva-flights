@@ -16,7 +16,7 @@ const TABS = [
 const SOURCE_NAMES = {
   travelpayouts: 'Aviasales',
   serpapi: 'Google (SerpAPI)',
-  skyscrapper: 'Skyscanner',
+  skyscrapper: 'Sky-Scrapper',
   fastflights: 'Google (vivo)',
 }
 

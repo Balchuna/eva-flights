@@ -139,7 +139,7 @@ export default function SearchTab({ canVerify, canSky, verifyRemaining, onOpenFl
         {canSky && (
           <label className="checkbox">
             <input type="checkbox" checked={useSky} onChange={(e) => setUseSky(e.target.checked)} />
-            incluir Skyscanner (gasta quota RapidAPI)
+            incluir Sky-Scrapper (gasta quota RapidAPI)
           </label>
         )}
       </form>
