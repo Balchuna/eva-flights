@@ -18,7 +18,7 @@ function isoOf(dt) {
   return `${y}-${pad(m)}-${pad(d)}T${pad(hh)}:${pad(mm)}`
 }
 
-export function normalizeFlights(results, { origin, destination }, now = new Date()) {
+export function normalizeFlights(results, { origin, destination, returnDate }, now = new Date()) {
   if (!Array.isArray(results)) return []
   return results
     .filter((it) => typeof it.price === 'number' && it.price > 0)
@@ -36,7 +36,7 @@ export function normalizeFlights(results, { origin, destination }, now = new Dat
         airline: it.airlines?.[0] || it.type || null,
         flightNumber: null,
         departureAt: isoOf(first?.departure),
-        returnAt: null,
+        returnAt: returnDate || null,
         transfers: Math.max(0, legs.length - 1),
         returnTransfers: null,
         durationMinutes: legs.reduce((s, l) => s + (l.duration || 0), 0) || null,

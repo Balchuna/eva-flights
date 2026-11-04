@@ -117,6 +117,12 @@ test('fast-flights: monta partida ISO, escalas e duração somada', () => {
   assert.equal(offer.durationMinutes, 125)
 })
 
+test('fast-flights: ida e volta leva a data da volta; só ida fica sem', () => {
+  assert.equal(normalizeFlights([fastFlightsResult], SEARCH, NOW)[0].returnAt, '2026-12-20')
+  const oneWay = { origin: 'GRU', destination: 'GIG', departureDate: '2026-12-10' }
+  assert.equal(normalizeFlights([fastFlightsResult], oneWay, NOW)[0].returnAt, null)
+})
+
 test('fast-flights: descarta preço inválido e entrada que não é lista', () => {
   assert.deepEqual(normalizeFlights([{ ...fastFlightsResult, price: 0 }], SEARCH, NOW), [])
   assert.deepEqual(normalizeFlights(null, SEARCH, NOW), [])
