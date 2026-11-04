@@ -29,6 +29,7 @@ export default function SearchTab({ canVerify, canSky, verifyRemaining, onOpenFl
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [offers, setOffers] = useState(null)
+  const [route, setRoute] = useState(null)
   const [nearby, setNearby] = useState([])
   const [verified, setVerified] = useState(null)
   const [warnings, setWarnings] = useState([])
@@ -46,6 +47,7 @@ export default function SearchTab({ canVerify, canSky, verifyRemaining, onOpenFl
         ...(params.useSky ? { useSkyscrapper: 'true' } : {}),
       })
       setOffers(res.data)
+      setRoute({ origin: params.origin, destination: params.destination })
       setNearby(res.nearby || [])
       setVerified(res.verified || null)
       setWarnings(res.warnings || [])
@@ -175,6 +177,7 @@ export default function SearchTab({ canVerify, canSky, verifyRemaining, onOpenFl
             <OfferCard
               key={i}
               offer={offer}
+              route={route}
               onFavorite={favorite}
               canVerify={canVerify}
               verifyRemaining={verifyRemaining}

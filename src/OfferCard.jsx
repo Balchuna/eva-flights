@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api } from './api.js'
-import { googleFlightsUrl, airlineSite } from './buyLinks.js'
+import { googleFlightsUrl, airlineSite, offerSearch } from './buyLinks.js'
 import { CONFIDENCE, offerMeta, stopsLabel } from './offerLabels.js'
 
 const SOURCE_LABELS = {
@@ -26,18 +26,13 @@ function fmtBRL(v) {
   return v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
 }
 
-export default function OfferCard({ offer, onFavorite, canVerify, verifyRemaining, routeVerified }) {
+export default function OfferCard({ offer, route, onFavorite, canVerify, verifyRemaining, routeVerified }) {
   const [verifying, setVerifying] = useState(false)
   const [verified, setVerified] = useState(null)
   const [verifyError, setVerifyError] = useState(null)
 
   const airline = airlineSite(offer.airline)
-  const search = {
-    origin: offer.origin,
-    destination: offer.destination,
-    departureDate: offer.departureAt?.slice(0, 10),
-    returnDate: offer.returnAt?.slice(0, 10) || undefined,
-  }
+  const search = offerSearch(offer, route)
   const age = priceAge(offer.foundAt)
 
   async function verify() {
