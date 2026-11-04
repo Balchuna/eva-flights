@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { api } from './api.js'
 import AirportInput from './AirportInput.jsx'
 import OfferCard from './OfferCard.jsx'
-import Filters, { applyFilters, EMPTY_FILTERS } from './Filters.jsx'
+import Filters from './Filters.jsx'
+import { applyFilters, EMPTY_FILTERS } from './filtering.js'
 
 function loadLastSearch() {
   try {
