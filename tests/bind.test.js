@@ -3,12 +3,15 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { startTestServer } from './helpers/server.js'
 
-test('servidor só aceita conexão da própria máquina', async () => {
+test('servidor só aceita conexão da própria máquina', async (t) => {
   const temp = useTempData()
   const running = await startTestServer()
+  // No after, para o servidor fechar mesmo se a asserção falhar: aberto, o node --test não termina
+  t.after(async () => {
+    await running.close()
+    temp.cleanup()
+  })
   assert.equal(running.server.address().address, '127.0.0.1')
-  await running.close()
-  temp.cleanup()
 })
 
 test('proxy do Vite aponta para o mesmo endereço do servidor', async () => {
