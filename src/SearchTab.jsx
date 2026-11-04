@@ -4,6 +4,7 @@ import AirportInput from './AirportInput.jsx'
 import OfferCard from './OfferCard.jsx'
 import Filters from './Filters.jsx'
 import { applyFilters, EMPTY_FILTERS } from './filtering.js'
+import { nearbyNote } from './offerLabels.js'
 
 function loadLastSearch() {
   try {
@@ -200,7 +201,7 @@ export default function SearchTab({ canVerify, canSky, verifyRemaining, onOpenFl
           <p>Nada no cache pra essa rota e data — isso não significa que não existam voos.</p>
           {nearby.length > 0 && (
             <>
-              <p className="disclaimer">Datas próximas com preço no cache:</p>
+              <p className="disclaimer">{nearbyNote(nearby, returnDate)}</p>
               <div className="nearby-grid">
                 {nearby.map((n, i) => (
                   <button key={i} className="nearby-card" onClick={() => searchNearby(n.departureDate)}>

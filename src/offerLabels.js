@@ -34,6 +34,14 @@ function flightLabel({ airline, flightNumber }) {
   return `voo ${airlineSite(airline) ? airline : ''}${flightNumber}`
 }
 
+// O month-matrix pode trazer preço só de ida mesmo numa busca de ida e volta
+export function nearbyNote(nearby, returnDate) {
+  const oneWayPrices = returnDate && nearby.some((n) => !n.returnDate)
+  return oneWayPrices
+    ? 'Datas próximas com preço no cache (preço só de ida, sem a volta):'
+    : 'Datas próximas com preço no cache:'
+}
+
 export function offerMeta(offer) {
   return [sellerLabel(offer), flightLabel(offer), stopsLabel(offer.transfers), fmtDuration(offer.durationMinutes)]
     .filter(Boolean)
