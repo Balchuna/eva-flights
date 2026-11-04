@@ -27,6 +27,35 @@ test('dedupe: partida em outro minuto continua separada', () => {
   assert.equal(merged.length, 2)
 })
 
+test('dedupe: sem número de voo, mesma companhia, partida e volta ficam com o menor preço', () => {
+  const merged = mergeOffers([
+    offer({ price: 500, source: 'google-live', flightNumber: null, departureAt: '2026-12-10T08:30', returnAt: '2026-12-20' }),
+    offer({ price: 400, departureAt: '2026-12-10T08:30:00-03:00', returnAt: '2026-12-20T18:10:00-03:00' }),
+  ])
+  assert.equal(merged.length, 1)
+  assert.equal(merged[0].price, 400)
+  assert.equal(merged[0].source, 'travelpayouts')
+})
+
+test('dedupe: sem número de voo, volta em outra data continua separada', () => {
+  const merged = mergeOffers([
+    offer({ flightNumber: null, returnAt: '2026-12-20' }),
+    offer({ flightNumber: null, returnAt: '2026-12-21' }),
+    offer({ flightNumber: null, returnAt: null }),
+  ])
+  assert.equal(merged.length, 3)
+})
+
+test('dedupe: sem número de voo, outra companhia continua separada', () => {
+  const merged = mergeOffers([offer({ flightNumber: null }), offer({ flightNumber: null, airline: 'AD' })])
+  assert.equal(merged.length, 2)
+})
+
+test('dedupe: sem companhia ou sem partida nada é fundido', () => {
+  assert.equal(mergeOffers([offer({ airline: null, flightNumber: null }), offer({ airline: null, flightNumber: null })]).length, 2)
+  assert.equal(mergeOffers([offer({ departureAt: null }), offer({ departureAt: null })]).length, 2)
+})
+
 test('dedupe: resultado sai ordenado por preço', () => {
   const merged = mergeOffers([
     offer({ flightNumber: '1', price: 900 }),

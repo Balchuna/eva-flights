@@ -1,6 +1,7 @@
 // Preço vivo do Google Flights via fast-flights-ts (scraper não-oficial, sem key).
 // Best-effort: pode quebrar quando o Google mudar o protocolo — nunca fonte única.
 import { getFlights, createQuery, Passengers } from 'fast-flights-ts'
+import { canonicalAirline } from '../../shared/airlines.js'
 
 // Desligado por padrão: quem clona o projeto não chama o Google sem decidir isso
 export const enabled = () => process.env.FASTFLIGHTS_DISABLED === 'false'
@@ -33,7 +34,7 @@ export function normalizeFlights(results, { origin, destination, returnDate }, n
         origin,
         destination,
         price: it.price,
-        airline: it.airlines?.[0] || it.type || null,
+        airline: canonicalAirline(it.airlines?.[0] || it.type),
         flightNumber: null,
         departureAt: isoOf(first?.departure),
         returnAt: returnDate || null,

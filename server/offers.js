@@ -1,15 +1,26 @@
-function dedupeKey(offer) {
-  return `${offer.airline || '?'}:${offer.flightNumber || '?'}:${(offer.departureAt || '').slice(0, 16)}`
+function departureMinute(offer) {
+  return (offer.departureAt || '').slice(0, 16)
+}
+
+function returnDay(offer) {
+  return (offer.returnAt || '').slice(0, 10)
+}
+
+// Companhia e partida iguais, e o número do voo quando as duas fontes dão. Sem número
+// (fast-flights e Sky-Scrapper não dão), a data da volta separa viagens diferentes.
+function sameFlight(a, b) {
+  if (!a.airline || a.airline !== b.airline) return false
+  if (!departureMinute(a) || departureMinute(a) !== departureMinute(b)) return false
+  if (a.flightNumber && b.flightNumber) return String(a.flightNumber) === String(b.flightNumber)
+  return returnDay(a) === returnDay(b)
 }
 
 export function mergeOffers(offers) {
-  const seen = new Map()
-  for (const offer of offers) {
-    const key = dedupeKey(offer)
-    const prev = seen.get(key)
-    if (!prev || offer.price < prev.price) seen.set(key, offer)
+  const kept = []
+  for (const offer of [...offers].sort((a, b) => a.price - b.price)) {
+    if (!kept.some((other) => sameFlight(offer, other))) kept.push(offer)
   }
-  return [...seen.values()].sort((a, b) => a.price - b.price)
+  return kept
 }
 
 const LIVE_HOURS = 10 / 60

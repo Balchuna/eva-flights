@@ -77,6 +77,15 @@ test('demo: toda oferta sai no formato único, com voo da faixa 9000', async () 
   assert.ok(travelpayouts.some((o) => o.flightNumber))
 })
 
+test('demo: o mesmo voo em duas fontes aparece uma vez, pelo menor preço', async () => {
+  const { body } = await api(`/api/flights?${QS}&useSkyscrapper=true`)
+  for (const time of ['T06:15', 'T09:40']) {
+    const same = body.data.filter((o) => o.departureAt.includes(time))
+    assert.equal(same.length, 1, time)
+    assert.equal(same[0].source, 'travelpayouts', time)
+  }
+})
+
 test('demo: mostra ofertas de idades diferentes', async () => {
   const { body } = await api(`/api/flights?${QS}&useSkyscrapper=true`)
   const levels = new Set(body.data.map((o) => o.confidence))

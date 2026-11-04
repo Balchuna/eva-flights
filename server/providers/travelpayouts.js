@@ -1,3 +1,4 @@
+import { canonicalAirline } from '../../shared/airlines.js'
 import { trackCall } from '../usage.js'
 
 const BASE = 'https://api.travelpayouts.com'
@@ -74,7 +75,7 @@ export function normalizeOffer(t) {
     origin: t.origin,
     destination: t.destination,
     price: Number(t.price),
-    airline: t.airline,
+    airline: canonicalAirline(t.airline),
     flightNumber: t.flight_number,
     departureAt: t.departure_at,
     returnAt: t.return_at || null,

@@ -41,6 +41,13 @@ test('todo provedor devolve o mesmo formato de oferta', () => {
   }
 })
 
+test('todo provedor grava a companhia pelo código canônico', () => {
+  assert.equal(normalizeOffer({ ...travelpayoutsV3Row, airline: 'JJ' }).airline, 'LA')
+  assert.equal(normalizeFlights([fastFlightsResult], SEARCH, NOW)[0].airline, 'G3')
+  assert.equal(normalizeItineraries([skyItinerary], SEARCH, NOW)[0].airline, 'G3')
+  assert.equal(normalizeVerification(serpapiBody, SEARCH, NOW).offers[0].airline, 'G3')
+})
+
 test('Travelpayouts v3: normaliza a oferta', () => {
   const offer = normalizeOffer(travelpayoutsV3Row)
   assert.equal(offer.source, 'travelpayouts')

@@ -1,3 +1,4 @@
+import { canonicalAirline } from '../../shared/airlines.js'
 import { trackCall } from '../usage.js'
 
 export const enabled = () => Boolean(process.env.SERPAPI_KEY)
@@ -16,7 +17,7 @@ export function normalizeVerification(body, { origin, destination, returnDate },
     origin,
     destination,
     price: f.price,
-    airline: f.flights?.[0]?.airline || null,
+    airline: canonicalAirline(f.flights?.[0]?.airline),
     flightNumber: f.flights?.[0]?.flight_number?.split(' ').pop() || null,
     departureAt: isoOf(f.flights?.[0]?.departure_airport?.time),
     returnAt: returnDate || null,

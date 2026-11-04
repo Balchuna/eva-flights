@@ -1,3 +1,4 @@
+import { canonicalAirline } from '../../shared/airlines.js'
 import { trackCall } from '../usage.js'
 
 const HOST = 'sky-scrapper.p.rapidapi.com'
@@ -43,7 +44,7 @@ export function normalizeItineraries(itineraries, { origin, destination }, now =
       origin,
       destination,
       price: it.price?.raw ?? null,
-      airline: leg?.carriers?.marketing?.[0]?.name || null,
+      airline: canonicalAirline(leg?.carriers?.marketing?.[0]?.name),
       flightNumber: null,
       departureAt: leg?.departure || null,
       returnAt: it.legs?.[1]?.departure || null,
