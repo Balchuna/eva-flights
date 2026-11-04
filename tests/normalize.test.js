@@ -54,14 +54,26 @@ test('Travelpayouts v3: normaliza a oferta', () => {
   assert.equal(offer.live, false)
   assert.equal(offer.price, 412)
   assert.equal(offer.airline, 'G3')
-  assert.equal(offer.flightNumber, 9101)
+  assert.equal(offer.flightNumber, '9101')
   assert.equal(offer.departureAt, '2026-12-10T08:30:00-03:00')
   assert.equal(offer.returnAt, '2026-12-20T18:10:00-03:00')
   assert.equal(offer.transfers, 0)
   assert.equal(offer.returnTransfers, 1)
   assert.equal(offer.durationMinutes, 130)
-  assert.equal(offer.foundAt, '2026-12-01T10:00:00Z')
+  assert.equal(offer.foundAt, null)
   assert.equal(offer.buyUrl, 'https://www.aviasales.com/search/GRU1012GIG20121')
+})
+
+test('Travelpayouts v3: mostra o aeroporto, não o código da cidade', () => {
+  const offer = normalizeOffer(travelpayoutsV3Row)
+  assert.equal(offer.origin, 'GRU')
+  assert.equal(offer.destination, 'GIG')
+})
+
+test('Travelpayouts: sem campo de aeroporto fica com o código que veio', () => {
+  const [offer] = normalizeLatest([{ ...travelpayoutsLatestRow, origin: 'SAO', destination: 'RIO' }], SEARCH)
+  assert.equal(offer.origin, 'SAO')
+  assert.equal(offer.destination, 'RIO')
 })
 
 test('Travelpayouts v3: inclui o marker no link quando configurado', () => {

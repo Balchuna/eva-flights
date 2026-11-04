@@ -72,8 +72,9 @@ export function normalizeOffer(t) {
     source: 'travelpayouts',
     live: false,
     foundAt: t.found_at || null,
-    origin: t.origin,
-    destination: t.destination,
+    // O v3 responde origin/destination com a cidade (SAO, RIO) e o aeroporto em campo próprio
+    origin: t.origin_airport || t.origin,
+    destination: t.destination_airport || t.destination,
     price: Number(t.price),
     airline: canonicalAirline(t.airline),
     gate: t.gate || null,

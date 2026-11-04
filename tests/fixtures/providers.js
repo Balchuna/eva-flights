@@ -1,19 +1,22 @@
 // Fixtures escritas à mão. Nenhuma é resposta real de API: seguem só os nomes de campo que
 // cada provedor usa, com voos, agências e preços inventados.
 
+// origin e destination vêm com o código da cidade; o aeroporto fica em campo próprio
 export const travelpayoutsV3Row = {
-  origin: 'GRU',
-  destination: 'GIG',
+  origin: 'SAO',
+  destination: 'RIO',
+  origin_airport: 'GRU',
+  destination_airport: 'GIG',
   price: 412,
   airline: 'G3',
-  flight_number: 9101,
+  gate: 'Agência Fictícia',
+  flight_number: '9101',
   departure_at: '2026-12-10T08:30:00-03:00',
   return_at: '2026-12-20T18:10:00-03:00',
   transfers: 0,
   return_transfers: 1,
   duration: 130,
   link: '/search/GRU1012GIG20121',
-  found_at: '2026-12-01T10:00:00Z',
 }
 
 export const travelpayoutsLatestRow = {

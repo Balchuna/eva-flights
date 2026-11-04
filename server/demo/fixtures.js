@@ -63,7 +63,8 @@ export function placesRows(term) {
   )
 }
 
-// /aviasales/v3/prices_for_dates. As idades cobrem todos os níveis de confiança do card.
+// /aviasales/v3/prices_for_dates. O v3 real não traz found_at; aqui ele existe só para o demo
+// mostrar todos os níveis de confiança do card.
 export function travelpayoutsV3Rows(search, now = new Date()) {
   const { origin, destination, departureDate, returnDate } = search
   const base = basePrice(search)
