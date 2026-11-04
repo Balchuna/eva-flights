@@ -51,8 +51,8 @@ export default function AlertsTab() {
   return (
     <div>
       <p className="disclaimer">
-        Checagem a cada 6h + vigília em horários fixos (inclusive de madrugada), enquanto o app
-        está aberto. Toast do Windows quando o preço atinge o alvo.
+        Checagem periódica (6h por padrão, ajustável no .env) + vigília em horários fixos (inclusive
+        de madrugada), enquanto o app está aberto. Toast do Windows quando o preço atinge o alvo.
       </p>
       <details className="note">
         <summary>Sobre o "reset de preços na madrugada"</summary>

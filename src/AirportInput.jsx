@@ -53,7 +53,7 @@ export default function AirportInput({ label, value, onChange, seed }) {
     <div className="field autocomplete" ref={wrapper}>
       <label>{label}</label>
       <input
-        value={value ? query : query}
+        value={query}
         onChange={(e) => handleInput(e.target.value)}
         onFocus={() => options.length && setOpen(true)}
         placeholder="Cidade ou aeroporto"

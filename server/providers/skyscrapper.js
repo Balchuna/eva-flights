@@ -23,7 +23,7 @@ async function rapidGet(path, params) {
   return body
 }
 
-// IATA → entityId/skyId exigidos pelo searchFlights (cacheado no chamador)
+// IATA → entityId/skyId exigidos pelo searchFlights
 async function resolveAirport(iata) {
   const body = await rapidGet('/api/v1/flights/searchAirport', { query: iata, locale: 'pt-BR' })
   const hit = (body.data || []).find(
