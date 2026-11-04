@@ -82,6 +82,13 @@ export default function App() {
         ))}
       </nav>
       <main>
+        {status?.demo && (
+          <div className="demo-banner" role="status">
+            <strong>Modo demo.</strong> Preços, voos e agências são fictícios e o servidor não faz
+            nenhuma chamada externa. Os links para o Google Flights e para as companhias abrem os
+            sites reais, com os preços de lá.
+          </div>
+        )}
         <InfoBanner />
         {tab === 'search' && (
           <SearchTab

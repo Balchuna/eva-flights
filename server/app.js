@@ -1,5 +1,5 @@
 import express from 'express'
-import { getProviders, activeSources } from './providers/index.js'
+import { getProviders, activeSources, isDemo } from './providers/index.js'
 import { getUsage, canCall, canAutoVerify, remaining, trackCall, LIMITS } from './usage.js'
 import { read, write } from './store.js'
 import { listAlerts, saveAlerts, checkAllAlerts } from './alerts.js'
@@ -36,6 +36,7 @@ export function createApp({ providers = getProviders() } = {}) {
   app.get(
     '/api/sources',
     handle(() => ({
+      demo: isDemo(),
       sources: activeSources(providers),
       usage: getUsage(),
       limits: LIMITS,

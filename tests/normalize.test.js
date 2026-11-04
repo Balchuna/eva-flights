@@ -10,6 +10,7 @@ import {
 import { normalizeFlights } from '../server/providers/fastflights.js'
 import { normalizeItineraries } from '../server/providers/skyscrapper.js'
 import { normalizeVerification } from '../server/providers/serpapi.js'
+import { OFFER_KEYS } from './helpers/server.js'
 import {
   travelpayoutsV3Row,
   travelpayoutsLatestRow,
@@ -22,23 +23,6 @@ import {
 
 const NOW = new Date('2026-12-05T12:00:00Z')
 const SEARCH = { origin: 'GRU', destination: 'GIG', departureDate: '2026-12-10', returnDate: '2026-12-20' }
-
-const OFFER_KEYS = [
-  'airline',
-  'buyUrl',
-  'departureAt',
-  'destination',
-  'durationMinutes',
-  'flightNumber',
-  'foundAt',
-  'live',
-  'origin',
-  'price',
-  'returnAt',
-  'returnTransfers',
-  'source',
-  'transfers',
-]
 
 afterEach(() => {
   delete process.env.TRAVELPAYOUTS_MARKER

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { createApp, startServer } from './app.js'
-import { activeSources } from './providers/index.js'
+import { activeSources, isDemo } from './providers/index.js'
 import { startAlertLoop } from './alerts.js'
 
 const port = Number(process.env.PORT) || 3001
@@ -9,5 +9,6 @@ startServer(createApp(), port, () => {
     .filter(([, on]) => on)
     .map(([k]) => k)
   console.log(`Eva Flights server em http://localhost:${port} (fontes ativas: ${active.join(', ') || 'nenhuma — configure o .env'})`)
+  if (isDemo()) console.log('Modo demo: preços fictícios, nenhuma chamada externa, dados em data/demo')
   startAlertLoop()
 })

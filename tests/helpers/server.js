@@ -65,3 +65,20 @@ export function offer(overrides = {}) {
 }
 
 export const SEARCH_QS = 'origin=GRU&destination=GIG&departureDate=2026-12-10'
+
+export const OFFER_KEYS = [
+  'airline',
+  'buyUrl',
+  'departureAt',
+  'destination',
+  'durationMinutes',
+  'flightNumber',
+  'foundAt',
+  'live',
+  'origin',
+  'price',
+  'returnAt',
+  'returnTransfers',
+  'source',
+  'transfers',
+]

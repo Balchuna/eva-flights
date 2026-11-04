@@ -732,6 +732,16 @@ footer {
   color: var(--text-dim);
 }
 
+.demo-banner {
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
 .info-banner {
   display: flex;
   align-items: center;

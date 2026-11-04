@@ -1,6 +1,10 @@
 import notifier from 'node-notifier'
-import { getProviders } from './providers/index.js'
+import { getProviders, isDemo } from './providers/index.js'
 import { read, write } from './store.js'
+
+export function alertTitle() {
+  return `${isDemo() ? '[DEMO] ' : ''}Eva Flights — preço atingido!`
+}
 
 export function listAlerts() {
   return read('alerts', [])
@@ -22,7 +26,7 @@ export async function checkAlert(alert) {
   return Math.min(...offers.map((o) => o.price))
 }
 
-export async function checkAllAlerts() {
+export async function checkAllAlerts({ notify = (toast) => notifier.notify(toast) } = {}) {
   const alerts = listAlerts()
   for (const alert of alerts) {
     if (!alert.active) continue
@@ -36,8 +40,8 @@ export async function checkAllAlerts() {
       if (price <= alert.targetPrice && !alert.notified) {
         alert.notified = true
         alert.triggeredAt = new Date().toISOString()
-        notifier.notify({
-          title: 'Eva Flights — preço atingido!',
+        notify({
+          title: alertTitle(),
           message: `${alert.origin} → ${alert.destination} por R$ ${price.toFixed(2)} (alvo R$ ${alert.targetPrice})`,
         })
       } else if (price > alert.targetPrice) {
