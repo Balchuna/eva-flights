@@ -75,6 +75,24 @@ test('Travelpayouts latest: usa value como preço e descarta outra data de ida',
   assert.equal(offers[0].buyUrl, null)
 })
 
+test('Travelpayouts latest: em ida e volta descarta outra data de volta', () => {
+  const offers = normalizeLatest(
+    [
+      travelpayoutsLatestRow,
+      { ...travelpayoutsLatestRow, return_date: '2026-12-25' },
+      { ...travelpayoutsLatestRow, return_date: '' },
+    ],
+    SEARCH
+  )
+  assert.equal(offers.length, 1)
+  assert.equal(offers[0].returnAt, '2026-12-20')
+})
+
+test('Travelpayouts latest: só ida não filtra a volta', () => {
+  const rows = [{ ...travelpayoutsLatestRow, return_date: '' }]
+  assert.equal(normalizeLatest(rows, { departureDate: '2026-12-10' }).length, 1)
+})
+
 test('Travelpayouts month-matrix: volta vazia vira null e ordena por data', () => {
   const rows = normalizeMonthMatrix([monthMatrixRow, { ...monthMatrixRow, depart_date: '2026-12-03', value: 900 }])
   assert.deepEqual(rows.map((r) => r.departureDate), ['2026-12-03', '2026-12-12'])

@@ -124,9 +124,10 @@ export async function latestPrices({ origin, destination, departureDate, returnD
   return normalizeLatest(body.data || [], { departureDate, returnDate })
 }
 
-export function normalizeLatest(rows, { departureDate }) {
+export function normalizeLatest(rows, { departureDate, returnDate }) {
   return rows
     .filter((t) => (t.depart_date || '').startsWith(departureDate))
+    .filter((t) => !returnDate || (t.return_date || '').startsWith(returnDate))
     .map((t) =>
       normalizeOffer({
         found_at: t.found_at,
