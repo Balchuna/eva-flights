@@ -191,6 +191,6 @@ docs/               explicação do projeto e material de estudo
 
 ## Licença
 
-Ainda não definida.
+[MIT](LICENSE).
 
 Travelpayouts, Aviasales, Google Flights, SerpAPI, RapidAPI, Sky-Scrapper e Skyscanner pertencem aos seus donos. Este projeto não tem vínculo com nenhum deles.
